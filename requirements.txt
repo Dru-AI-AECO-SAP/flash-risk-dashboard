@@ -1,4 +1,4 @@
-textstreamlit
+streamlit
 streamlit-folium
 folium
 requests
