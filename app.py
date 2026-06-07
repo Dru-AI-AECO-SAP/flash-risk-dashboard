@@ -23,9 +23,12 @@ def fetch_weather(lat, lon):
     except Exception:
         return 0.0
 
-# 4. DATA COMPILING LOGIC
+# 4. DATA COMPILING LOGIC WITH AUTO-CLEANING BREAKS
 if uploaded_file is not None:
-    assets_df = pd.read_csv(uploaded_file)
+    # Use skipinitialspace=True to eliminate accidental spaces after commas automatically
+    assets_df = pd.read_csv(uploaded_file, skipinitialspace=True)
+    # Forcefully strip out any hidden trailing/leading whitespaces from headers manually
+    assets_df.columns = assets_df.columns.str.strip()
     st.sidebar.success("✅ BIM Schedule Loaded Successfully!")
 else:
     default_data = [
@@ -40,6 +43,7 @@ processed = []
 crit_count = 0
 
 for _, row in assets_df.iterrows():
+    # The columns are now fully stripped and sanitized against KeyError spikes
     rain = fetch_weather(row["Latitude"], row["Longitude"]) + (35.0 if inject_storm else 0.0)
     pipe_dia = row["Drainage_Pipe_Diameter_mm"]
     if pipe_dia <= 300:
